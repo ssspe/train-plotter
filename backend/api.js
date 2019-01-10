@@ -33,13 +33,12 @@ var url = "mongodb://localhost:27017/";
 
 function requestTrainMovement() {
   MongoClient.connect(url, function(err, db) {
+    console.log("Mongo Connected");
     connectionManager.connect(function (error, client, reconnect) {
+      console.log("Connected to train db");
      if (error) {
          console.log("Terminal error, gave up reconnecting");
          return;
-     }
-     else {
-       console.log("CONNECTED");
      }
 
      client.on("error", function (error) {
@@ -73,25 +72,16 @@ function requestTrainMovement() {
                  }
                  async.each(data,
                      function(item, next) {
-                         console.log(item);
                          // Look for Train Activation messages (msg_type 0001)
                          if (item.header && item.header.msg_type == "0003") {
-
+                              console.log(item);
                               if (err) throw err;
                               var dbo = db.db("TrainMovement");
-                              var myquery = { train_descr: item.body.train_descr };
-                              var newvalues = { $set: {first_stanox: "Mickey", second_stanox: "Canyon 123" } };
-                              dbo.collection("trains").update(myquery, newvalues, function(err, res) {
+                              var myquery = { train_descriptor: item.body.train_id };
+                              var newvalues = { $set: {current_journey: item.body.loc_stanox, second_journey:  item.body.next_report_stanox } };
+                              dbo.collection("trains").update(myquery, newvalues, {upsert: true}, function(err, res) {
                                 if (err) throw err;
-                                console.log("1 document inserted");
                               });
-
-                             console.log(
-                                 "Train",
-                                 item.body.train_id,
-                                 "activated at stanox",
-                                 item.body.tp_origin_stanox ? item.body.tp_origin_stanox : item.body.sched_origin_stanox
-                             );
                          }
                          next();
                      }
@@ -113,10 +103,17 @@ router.get("/listOfTrains", (req, res) => {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("TrainMovement");
-    dbo.collection("trains").findOne({}, function(err, result) {
-      if (err) throw err;
-      console.log(result.name);
-      db.close();
+    var array = []
+    var stream = dbo.collection("trains").find().stream();
+    stream.on('data', function(doc) {
+        array.push(doc.train_descriptor);
+    });
+    stream.on('error', function(err) {
+        console.log(err);
+    });
+    stream.on('end', function() {
+        console.log('All done!');
+        return res.json({ success: true, data: array });
     });
   });
 });

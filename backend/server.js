@@ -17,5 +17,4 @@ app.use("/api", api.router);
 app.listen(API_PORT, function () {
     // Once a day get the git repos
     api.requestTrainMovement();
-    setInterval(api.requestTrainMovement, 10000);
 });
