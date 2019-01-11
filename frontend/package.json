@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mapbox/mapbox-sdk": "^0.5.0",
     "mapbox-gl": "^0.52.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
