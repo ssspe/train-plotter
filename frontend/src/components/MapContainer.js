@@ -4,28 +4,6 @@ const Map = ReactMapboxGl({
   accessToken: "pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
 })
 
-const geojson = {
-  'type': 'FeatureCollection',
-  'features': [
-    {
-      'type': 'Feature',
-      'geometry': {
-        'type': 'LineString',
-        'coordinates': [
-          [
-            -77.01239,
-            38.91275
-          ],
-          [
-            -77.00405,
-            38.93800
-          ]
-        ]
-      }
-    }
-  ]
-};
-
 const linePaint: MapboxGL.LinePaint = {
   'line-color': 'blue',
   'line-width': 2

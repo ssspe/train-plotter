@@ -9,12 +9,14 @@ class App extends Component {
     super(props);
     this.state = {
         data : null,
-        trainInfo: null
+        trainInfo: null,
+        selectedOption: null
     };
   }
 
   componentDidMount() {
     this.getDataFromDb();
+    let interval = setInterval(this.getTrainInfo, 10000);
   }
 
   getDataFromDb = () => {
@@ -24,15 +26,19 @@ class App extends Component {
       .then(res => this.setState({ data: res.data }))
   };
 
-  getTrainInfo = (train_id) => {
-    var url = "/api/trainInfo?train_id=" + train_id.value;
-    fetch(url)
-      .then(data => data.json())
-      .then(res => this.setState({ trainInfo: res.data }))
+  getTrainInfo = () => {
+    if (this.state.selectedOption) {
+      console.log(this.state.selectedOption.value);
+      var url = "/api/trainInfo?train_id=" + this.state.selectedOption.value;
+      fetch(url)
+        .then(data => data.json())
+        .then(res => this.setState({ trainInfo: res.data }))
+    }
   }
 
   handleChange = (selectedOption) => {
     this.getTrainInfo(selectedOption);
+    this.setState({selectedOption: selectedOption});
   }
 
   render() {
