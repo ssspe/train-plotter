@@ -3,6 +3,7 @@ import logo from './static/images/logo.svg';
 import './styles/App.css';
 import Select from 'react-select';
 import MapContainer from "./components/MapContainer.js";
+import AllMapContainer from "./components/AllMapContainer.js";
 
 class App extends Component {
   constructor(props) {
@@ -10,6 +11,7 @@ class App extends Component {
     this.state = {
         data : null,
         trainInfo: null,
+        allTrainInfo: null,
         selectedOption: null
     };
   }
@@ -35,6 +37,13 @@ class App extends Component {
     }
   }
 
+  getAllTrainInfo = () => {
+    var url = "/api/allTrainInfo";
+    fetch(url)
+      .then(data => data.json())
+      .then(res => this.setState({ allTrainInfo: res.data }))
+  }
+
   handleChange = (selectedOption) => {
     this.getTrainInfo(selectedOption);
     this.setState({selectedOption: selectedOption});
@@ -48,6 +57,7 @@ class App extends Component {
           <p>
             Edit <code>src/App.js</code> and save to reload.
           </p>
+          <button onClick={this.getAllTrainInfo}/>
           { this.state.data ?
           <Select
             className="train-selection"
@@ -56,6 +66,8 @@ class App extends Component {
             options={this.state.data}
           /> : null }
           <MapContainer trainInfo={ this.state.trainInfo }/>
+          {this.state.allTrainInfo ?
+            <AllMapContainer trainInfo={ this.state.allTrainInfo }/> : null}
         </header>
       </div>
     );

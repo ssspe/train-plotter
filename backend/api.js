@@ -74,16 +74,21 @@ function requestTrainMovement() {
                      function(item, next) {
                          // Look for Train Activation messages (msg_type 0001)
                          if (item.header && item.header.msg_type == "0003") {
-                              if (err) throw err;
-                              var dbo = db.db("TrainMovement");
-                              var myquery = { train_descriptor: item.body.train_id };
-                              var newvalues = { $set:
-                                { current_journey: item.body.loc_stanox,
-                                  second_journey:  item.body.next_report_stanox,
-                                  arrival_time: item.body.actual_timestamp } };
-                              dbo.collection("trains").update(myquery, newvalues, {upsert: true}, function(err, res) {
-                                if (err) throw err;
+                           if (err) throw err;
+                            stanoxToLocation(item.body.loc_stanox, function(data) {
+                              var current_journey = data;
+                              stanoxToLocation(item.body.next_report_stanox, function(data) {
+                                var dbo = db.db("TrainMovement");
+                                var myquery = { train_descriptor: item.body.train_id };
+                                var newvalues = { $set:
+                                  { current_journey: current_journey,
+                                    second_journey:  data,
+                                    arrival_time: item.body.actual_timestamp } };
+                                dbo.collection("trains").update(myquery, newvalues, {upsert: true}, function(err, res) {
+                                  if (err) throw err;
+                                });
                               });
+                            });
                          }
                          next();
                      }
@@ -103,18 +108,31 @@ function getTrainInfo(train_id, callback) {
     var query = { train_descriptor: train_id }
     var stream = dbo.collection("trains").find(query).stream();
     stream.on('data', function(doc) {
-        stanoxToLocation(doc.current_journey, function(firstCity) {
-          doc.current_journey = firstCity;
-          stanoxToLocation(doc.second_journey, function(secondCity) {
-            doc.second_journey = secondCity;
-            callback(doc);
-          });
-        });
+        callback(doc);
     });
     stream.on('error', function(err) {
         console.log(err);
     });
     stream.on('end', function() {
+        console.log('All done!');
+    });
+  });
+}
+
+function getAllTrainInfo(callback) {
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("TrainMovement");
+    var array = [];
+    var stream = dbo.collection("trains").find().stream();
+    stream.on('data', function(doc) {
+        array.push(doc);
+    });
+    stream.on('error', function(err) {
+        console.log(err);
+    });
+    stream.on('end', function() {
+        callback(array);
         console.log('All done!');
     });
   });
@@ -127,6 +145,7 @@ function getListOfTrains(callback) {
     var array = []
     var stream = dbo.collection("trains").find().stream();
     stream.on('data', function(doc) {
+        console.log(doc);
         array.push({ value: doc.train_descriptor, label: doc.train_descriptor });
     });
     stream.on('error', function(err) {
@@ -156,6 +175,12 @@ function stanoxToLocation(stanox, callback) {
 
 router.get("/trainInfo", (req, res) => {
   getTrainInfo(req.query.train_id, function(data) {
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.get("/allTrainInfo", (req, res) => {
+  getAllTrainInfo(function(data) {
     return res.json({ success: true, data: data });
   });
 });

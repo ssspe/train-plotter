@@ -65,7 +65,6 @@ class MapContainer extends Component {
   };
 
   render() {
-    console.log(this.props);
     return(
       <Map
         style="mapbox://styles/mapbox/streets-v9"
