@@ -74,11 +74,13 @@ function requestTrainMovement() {
                      function(item, next) {
                          // Look for Train Activation messages (msg_type 0001)
                          if (item.header && item.header.msg_type == "0003") {
-                              console.log(item);
                               if (err) throw err;
                               var dbo = db.db("TrainMovement");
                               var myquery = { train_descriptor: item.body.train_id };
-                              var newvalues = { $set: {current_journey: item.body.loc_stanox, second_journey:  item.body.next_report_stanox } };
+                              var newvalues = { $set:
+                                { current_journey: item.body.loc_stanox,
+                                  second_journey:  item.body.next_report_stanox,
+                                  arrival_time: item.body.actual_timestamp } };
                               dbo.collection("trains").update(myquery, newvalues, {upsert: true}, function(err, res) {
                                 if (err) throw err;
                               });
@@ -106,7 +108,7 @@ router.get("/listOfTrains", (req, res) => {
     var array = []
     var stream = dbo.collection("trains").find().stream();
     stream.on('data', function(doc) {
-        array.push(doc.train_descriptor);
+        array.push({ value: doc.train_descriptor, label: doc.train_descriptor });
     });
     stream.on('error', function(err) {
         console.log(err);

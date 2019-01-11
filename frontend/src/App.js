@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './static/images/logo.svg';
 import './styles/App.css';
+import Select from 'react-select';
 
 class App extends Component {
   constructor(props) {
@@ -30,7 +31,12 @@ class App extends Component {
           <p>
             Edit <code>src/App.js</code> and save to reload.
           </p>
-
+          { this.state.data ?
+          <Select
+            className="train-selection"
+            name="color"
+            options={this.state.data}
+          /> : null }
         </header>
       </div>
     );

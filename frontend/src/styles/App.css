@@ -22,6 +22,11 @@
   color: #61dafb;
 }
 
+.train-selection {
+  width: 50vw;
+  color: black !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
