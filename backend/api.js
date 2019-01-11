@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 var stompit = require("stompit");
 var async = require("async");
-
+var fs = require('fs');
 // Connect options with standard headers
 var connectOptions = {
     "host": "datafeeds.networkrail.co.uk",
@@ -96,12 +96,31 @@ function requestTrainMovement() {
   });
 }
 
-function getListOfTrains() {
-
-
+function getTrainInfo(train_id, callback) {
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("TrainMovement");
+    var query = { train_descriptor: train_id }
+    var stream = dbo.collection("trains").find(query).stream();
+    stream.on('data', function(doc) {
+        stanoxToLocation(doc.current_journey, function(firstCity) {
+          doc.current_journey = firstCity;
+          stanoxToLocation(doc.second_journey, function(secondCity) {
+            doc.second_journey = secondCity;
+            callback(doc);
+          });
+        });
+    });
+    stream.on('error', function(err) {
+        console.log(err);
+    });
+    stream.on('end', function() {
+        console.log('All done!');
+    });
+  });
 }
 
-router.get("/listOfTrains", (req, res) => {
+function getListOfTrains(callback) {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("TrainMovement");
@@ -115,8 +134,37 @@ router.get("/listOfTrains", (req, res) => {
     });
     stream.on('end', function() {
         console.log('All done!');
-        return res.json({ success: true, data: array });
+
+        callback(array);
     });
+  });
+}
+
+function stanoxToLocation(stanox, callback) {
+  console.log("STANOX TO LOCATION" + stanox);
+  fs.readFile("./static/data.json", {encoding: 'utf-8'}, function(err,data){
+    if (!err) {
+      JSON.parse(data).forEach(function(trainInfo) {
+        if (trainInfo.stanox === stanox) {
+          console.log(trainInfo.city);
+          callback(trainInfo.city);
+        }
+      });
+    } else {
+        console.log(err);
+    }
+  });
+}
+
+router.get("/trainInfo", (req, res) => {
+  getTrainInfo(req.query.train_id, function(data) {
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.get("/listOfTrains", (req, res) => {
+  getListOfTrains(function(data) {
+    return res.json({ success: true, data: data });
   });
 });
 
