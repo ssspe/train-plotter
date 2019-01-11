@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import ReactMapboxGl, { GeoJSONLayer, Layer, Feature } from "react-mapbox-gl";
+import ReactMapboxGl, { GeoJSONLayer, Layer, Feature, Marker } from "react-mapbox-gl";
+import Icon from "../static/images/map-marker.png";
 const Map = ReactMapboxGl({
   accessToken: "pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
 })
@@ -32,7 +33,6 @@ class MapContainer extends Component {
   }
 
   getCoordinates = (location, callback) => {
-    console.log(location);
     const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
     const baseClient = mbxGeocoding({ accessToken: "pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg" });
     baseClient.forwardGeocode({
@@ -54,6 +54,10 @@ class MapContainer extends Component {
   }
 
   render() {
+    const image = new Image(20, 20);
+    image.src = Icon;
+    const firstImages = ["firstImage", image];
+    const secondImages = ["secondImage", image];
     return(
       <Map
         style="mapbox://styles/mapbox/streets-v9"
@@ -63,20 +67,23 @@ class MapContainer extends Component {
           'text-align': "left",
         }}>
           {this.state.first_coord ?
-          <Layer
-            type="symbol"
-            id="marker"
-            layout={{ "icon-image": "marker-15" }}>
-            <Feature coordinates={[this.state.first_coord[0], this.state.first_coord[1]]}/>
-          </Layer> : null }
+            <Marker
+                coordinates={[this.state.first_coord[0], this.state.first_coord[1]]}
+                onClick={() => {
+                  console.log("Clicked");
+                }}
+              >
+                <img height="20" width="20" src={require("../static/images/map-marker.png")}/>
+              </Marker> : null }
           {this.state.second_coord ?
-          <Layer
-            type="symbol"
-            id="marker2"
-            layout={{ "icon-image": "marker-15" }}>
-            <Feature coordinates={[this.state.second_coord[0], this.state.second_coord[1]]}/>
-          </Layer> : null }
-
+            <Marker
+                coordinates={[this.state.second_coord[0], this.state.second_coord[1]]}
+                onClick={() => {
+                  console.log("Clicked");
+                }}
+              >
+                <img height="20" width="20" src={require("../static/images/map-marker.png")}/>
+              </Marker> : null }
           {this.state.first_coord && this.state.second_coord ?
           <GeoJSONLayer
              data={{

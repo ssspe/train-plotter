@@ -141,12 +141,10 @@ function getListOfTrains(callback) {
 }
 
 function stanoxToLocation(stanox, callback) {
-  console.log("STANOX TO LOCATION" + stanox);
   fs.readFile("./static/data.json", {encoding: 'utf-8'}, function(err,data){
     if (!err) {
       JSON.parse(data).forEach(function(trainInfo) {
         if (trainInfo.stanox === stanox) {
-          console.log(trainInfo.city);
           callback(trainInfo.city);
         }
       });

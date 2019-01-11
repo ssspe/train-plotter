@@ -28,7 +28,6 @@ class App extends Component {
 
   getTrainInfo = () => {
     if (this.state.selectedOption) {
-      console.log(this.state.selectedOption.value);
       var url = "/api/trainInfo?train_id=" + this.state.selectedOption.value;
       fetch(url)
         .then(data => data.json())
@@ -42,7 +41,6 @@ class App extends Component {
   }
 
   render() {
-    console.log("Render");
     return (
       <div className="App">
         <header className="App-header">
