@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactMapboxGl, { GeoJSONLayer, Layer, Feature, Marker, Popup } from "react-mapbox-gl";
 import Tooltip from '@material-ui/core/Tooltip';
-
+const dateFormat = require('dateformat');
 const Map = ReactMapboxGl({
   accessToken: "pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
 })
@@ -32,7 +32,9 @@ class MapContainer extends Component {
       this.getCoordinates(nextProps.trainInfo.second_journey, coord => {
         this.setState({second_coord: coord});
       });
-      this.setState({arrival_time: nextProps.trainInfo.arrival_time})
+      var stringDate = new Date(0);
+      stringDate.setUTCSeconds(nextProps.trainInfo.arrival_time / 1000);
+      this.setState({arrival_time: dateFormat(stringDate, "dddd, mmmm dS, h:MM:ss TT")})
     }
   }
 
@@ -74,22 +76,22 @@ class MapContainer extends Component {
         { this.state.first_coord ?
           <Marker
             coordinates={ [this.state.first_coord[0], this.state.first_coord[1]] }
-            onClick={ () => { console.log("Clicked"); } }>
+            onClick={ this.handleTooltipOpen }>
             <img height="20" width="20" src={ require("../static/images/map-marker.png") } />
           </Marker> : null }
         { this.state.second_coord ?
           <Marker
               coordinates={ [this.state.second_coord[0], this.state.second_coord[1]] }
-              onClick={ this.handleTooltipOpen }>
+              onClick={ () => { console.log("Clicked"); } }>
             <img height="20" width="20" src={ require("../static/images/map-marker.png") } />
           </Marker> : null }
-        { this.state.open ?
+        { this.state.open && this.state.arrival_time ?
           <Popup
-            coordinates={ [this.state.second_coord[0], this.state.second_coord[1]] }
+            coordinates={ [this.state.first_coord[0], this.state.first_coord[1]] }
             offset={{
               'bottom-left': [12, -38],  'bottom': [0, -38], 'bottom-right': [-12, -38]
             }}>
-            <h1>{this.state.trainInfo.arrival_time}</h1>
+            <h1 className="toolTipText">{this.state.arrival_time}</h1>
           </Popup> : null }
         { this.state.first_coord && this.state.second_coord ?
           <GeoJSONLayer
