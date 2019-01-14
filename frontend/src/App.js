@@ -19,6 +19,7 @@ class App extends Component {
   componentDidMount() {
     this.getDataFromDb();
     let interval = setInterval(this.getTrainInfo, 10000);
+    let interval_all = setInterval(this.getAllTrainInfo, 10000);
   }
 
   getDataFromDb = () => {
