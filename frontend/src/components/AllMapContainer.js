@@ -196,7 +196,7 @@ class AllMapContainer extends Component {
               "data": {
                   "type": "Feature",
                   "properties": {
-                          "title": "Mapbox DC"
+                          "title": "Starting"
                       },
                   "geometry": {
                       "type": "Point",
@@ -238,7 +238,7 @@ class AllMapContainer extends Component {
               "data": {
                   "type": "Feature",
                   "properties": {
-                          "title": "Mapbox DC"
+                          "title": "Ending"
                       },
                   "geometry": {
                       "type": "Point",
@@ -265,19 +265,6 @@ class AllMapContainer extends Component {
           }
         });
       });
-
-
-
-      // secondMarkers = this.state.trainInfo.map((trainInfo) => {
-      //   console.log(trainInfo.second_journey)
-      //   return(
-      //     <Marker coordinates={trainInfo.second_journey} map={this.map}>
-      //       <span role="img" aria-label="Emoji Marker" style={{ fontSize: '30px' }}>
-      //         🏠
-      //       </span>
-      //     </Marker>
-      //   );
-      // });
 
       this.state.trainInfo.map((trainInfo) => {
         if (this.map.getLayer("route" + trainInfo.train_descriptor)) {
@@ -330,9 +317,10 @@ class AllMapContainer extends Component {
         'text-align': "left" }}>
         <MapboxMap
             accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
-            coordinates={{ lat: 48.872198, lng: 2.3366308 }}
+            coordinates={{ lat: 51.5074, lng: 0.1278 }}
             className="map-container"
             onLoad={this.onMapLoad} >
+            {secondMarkers}
         </MapboxMap>
       </div>
     );
