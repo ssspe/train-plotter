@@ -118,6 +118,7 @@
 import React, { Component } from 'react';
 import MapboxMap, { Marker, GeoJSONLayer } from 'react-mapbox-wrapper';
 import _ from 'lodash';
+import Icon from '../static/images/map-marker.png';
 
 class AllMapContainer extends Component {
   constructor(props) {
@@ -162,60 +163,121 @@ class AllMapContainer extends Component {
       //   );
       // });
 
-      this.state.trainInfo.map((trainInfo) => {
-        if (this.map.getLayer("routeFirstMarkers" + trainInfo.train_descriptor)) {
-          this.map.removeLayer("routeFirstMarkers" + trainInfo.train_descriptor);
-        }
+      var width = 64; // The image will be 64 pixels square
+      var bytesPerPixel = 4; // Each pixel is represented by 4 bytes: red, green, blue, and alpha.
+      var data = new Uint8Array(width * width * bytesPerPixel);
 
-        if (this.map.getSource("sourceFirstMarkers" + trainInfo.train_descriptor)){
-          this.map.removeSource("sourceFirstMarkers" + trainInfo.train_descriptor);
-        }
+      for (var x = 0; x < width; x++) {
+          for (var y = 0; y < width; y++) {
+              var offset = (y * width + x) * bytesPerPixel;
+              data[offset + 0] = y / width * 255; // red
+              data[offset + 1] = x / width * 255; // green
+              data[offset + 2] = 128;             // blue
+              data[offset + 3] = 255;             // alpha
+          }
+      }
+      var map = this.map;
+      var allTrainInfo = this.state.trainInfo;
+      map.loadImage(Icon, function(error, image) {
 
-        if (!this.map.getSource("sourceFirstMarkers" + trainInfo.train_descriptor)){
-          this.map.addSource("sourceFirstMarkers" + trainInfo.train_descriptor, {
-            "type": "geojson",
-            "data": {
-                "type": "Feature",
-                "properties": {
-                        "title": "Mapbox DC",
-                        "icon": "monument"
-                    },
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": trainInfo.current_journey
-                }
-            }
-          });
-        }
+        map.addImage('gradient', image);
+        allTrainInfo.map((trainInfo) => {
+          if (map.getLayer("routeFirstMarkers" + trainInfo.train_descriptor)) {
+            map.removeLayer("routeFirstMarkers" + trainInfo.train_descriptor);
+          }
 
-        if (!this.map.getLayer("routeFirstMarkers" + trainInfo.train_descriptor)){
-          this.map.addLayer({
-            "id": "routeFirstMarkers" + trainInfo.train_descriptor,
-            "type": "symbol",
-            "source": "sourceFirstMarkers" + trainInfo.train_descriptor,
-            "layout": {
-                "icon-image": "{icon}-15",
-                "text-field": "{title}",
-                "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-                "text-offset": [0, 0.6],
-                "text-anchor": "top"
-            },
-          });
-        }
+          if (map.getSource("sourceFirstMarkers" + trainInfo.train_descriptor)){
+            map.removeSource("sourceFirstMarkers" + trainInfo.train_descriptor);
+          }
+
+          if (!map.getSource("sourceFirstMarkers" + trainInfo.train_descriptor)){
+            map.addSource("sourceFirstMarkers" + trainInfo.train_descriptor, {
+              "type": "geojson",
+              "data": {
+                  "type": "Feature",
+                  "properties": {
+                          "title": "Mapbox DC"
+                      },
+                  "geometry": {
+                      "type": "Point",
+                      "coordinates": trainInfo.current_journey
+                  }
+              }
+            });
+          }
+
+          if (!map.getLayer("routeFirstMarkers" + trainInfo.train_descriptor)){
+            map.addLayer({
+              "id": "routeFirstMarkers" + trainInfo.train_descriptor,
+              "type": "symbol",
+              "source": "sourceFirstMarkers" + trainInfo.train_descriptor,
+              "layout": {
+                  "icon-image": "gradient",
+                  "icon-size": 0.08,
+                  "text-field": "{title}",
+                  "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+                  "text-offset": [0, 0.6],
+                  "text-anchor": "top"
+              },
+            });
+          }
+        });
+
+        allTrainInfo.map((trainInfo) => {
+          if (map.getLayer("routeSecondMarkers" + trainInfo.train_descriptor)) {
+            map.removeLayer("routeSecondMarkers" + trainInfo.train_descriptor);
+          }
+
+          if (map.getSource("sourceSecondMarkers" + trainInfo.train_descriptor)){
+            map.removeSource("sourceSecondMarkers" + trainInfo.train_descriptor);
+          }
+
+          if (!map.getSource("sourceSecondMarkers" + trainInfo.train_descriptor)){
+            map.addSource("sourceSecondMarkers" + trainInfo.train_descriptor, {
+              "type": "geojson",
+              "data": {
+                  "type": "Feature",
+                  "properties": {
+                          "title": "Mapbox DC"
+                      },
+                  "geometry": {
+                      "type": "Point",
+                      "coordinates": trainInfo.second_journey
+                  }
+              }
+            });
+          }
+
+          if (!map.getLayer("routeSecondMarkers" + trainInfo.train_descriptor)){
+            map.addLayer({
+              "id": "routeSecondMarkers" + trainInfo.train_descriptor,
+              "type": "symbol",
+              "source": "sourceSecondMarkers" + trainInfo.train_descriptor,
+              "layout": {
+                  "icon-image": "gradient",
+                  "icon-size": 0.08,
+                  "text-field": "{title}",
+                  "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+                  "text-offset": [0, 0.6],
+                  "text-anchor": "top"
+              },
+            });
+          }
+        });
       });
 
 
 
-      secondMarkers = this.state.trainInfo.map((trainInfo) => {
-        console.log(trainInfo.second_journey)
-        return(
-          <Marker coordinates={trainInfo.second_journey} map={this.map}>
-            <span role="img" aria-label="Emoji Marker" style={{ fontSize: '30px' }}>
-              🏠
-            </span>
-          </Marker>
-        );
-      });
+      // secondMarkers = this.state.trainInfo.map((trainInfo) => {
+      //   console.log(trainInfo.second_journey)
+      //   return(
+      //     <Marker coordinates={trainInfo.second_journey} map={this.map}>
+      //       <span role="img" aria-label="Emoji Marker" style={{ fontSize: '30px' }}>
+      //         🏠
+      //       </span>
+      //     </Marker>
+      //   );
+      // });
 
       this.state.trainInfo.map((trainInfo) => {
         if (this.map.getLayer("route" + trainInfo.train_descriptor)) {
@@ -262,13 +324,15 @@ class AllMapContainer extends Component {
     }
 
     return (
-      <div style={{ height: 400, width: 400 }}>
+      <div style={{
+        height: "100vh",
+        width: "100vw",
+        'text-align': "left" }}>
         <MapboxMap
             accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
             coordinates={{ lat: 48.872198, lng: 2.3366308 }}
             className="map-container"
             onLoad={this.onMapLoad} >
-            {secondMarkers}
         </MapboxMap>
       </div>
     );

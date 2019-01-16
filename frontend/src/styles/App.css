@@ -18,6 +18,19 @@
   color: black;
 }
 
+.my-icon {
+  border-radius: 100%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  color: white;
+}
+
+.icon-dc {
+  background: #3bb2d0;
+}
+
 .App-link {
   color: #61dafb;
 }
