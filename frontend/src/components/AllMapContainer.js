@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import MapboxMap, { Marker, GeoJSONLayer } from 'react-mapbox-wrapper';
+import MapboxMap, { Marker, GeoJSONLayer, Helpers } from 'react-mapbox-wrapper';
 import _ from 'lodash';
 import Icon from '../static/images/map-marker.png';
 
@@ -24,11 +24,13 @@ class AllMapContainer extends Component {
     const { trainInfo } = this.props;
     if (this.map) {
       firstMarkers = trainInfo.map((trainInfo) => {
+        var d = new Date(0)
+        d.setUTCSeconds(trainInfo.arrival_time / 1000)
         return(
           <Marker
             coordinates={{ lng: trainInfo.current_journey[0], lat: trainInfo.current_journey[1] }}
             map={this.map}
-            popup={trainInfo.arrival_time}
+            popup={d.toLocaleString("en-UK")}
             popupOnOver
             popupOffset={20} />
         );
@@ -39,54 +41,30 @@ class AllMapContainer extends Component {
           <Marker
             coordinates={{ lng: trainInfo.second_journey[0], lat: trainInfo.second_journey[1] }}
             map={this.map}
-            popup={trainInfo.arrival_time}
+            popup="Second"
             popupOnOver
             popupOffset={20} />
         );
       });
 
+      var paint = { 'fill-color': 'blue' }
       trainInfo.map((trainInfo) => {
-        if (this.map.getLayer("route" + trainInfo.train_descriptor)) {
-          this.map.removeLayer("route" + trainInfo.train_descriptor);
-        }
-
-        if (this.map.getSource("source" + trainInfo.train_descriptor)){
-          this.map.removeSource("source" + trainInfo.train_descriptor);
-        }
-
-        if (!this.map.getSource("source" + trainInfo.train_descriptor)){
-          this.map.addSource("source" + trainInfo.train_descriptor, {
-            "type": "geojson",
-            "data": {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [
-                        trainInfo.current_journey,
-                        trainInfo.second_journey
-                    ]
-                }
-            }
-          });
-        }
-
-        if (!this.map.getLayer("route" + trainInfo.train_descriptor)){
-          this.map.addLayer({
-            "id": "route" + trainInfo.train_descriptor,
-            "type": "line",
-            "source": "source" + trainInfo.train_descriptor,
-            "layout": {
-                "line-join": "round",
-                "line-cap": "round"
-            },
-            "paint": {
-                "line-color": "#888",
-                "line-width": 8
-            }
-          });
-        }
-      });
+        Helpers.removeGeoJSON(this.map, trainInfo.train_descriptor);
+        Helpers.drawGeoJSON(
+          this.map,
+          trainInfo.train_descriptor,
+          {
+              type: 'Feature',
+              geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                      trainInfo.current_journey,
+                      trainInfo.second_journey
+                  ],
+              },
+          },
+          paint, () => {console.log("DONE")});
+        });
     }
 
     return (
