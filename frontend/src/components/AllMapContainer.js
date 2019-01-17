@@ -7,8 +7,8 @@ class AllMapContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        data : null,
-        trainInfo: null,
+      data : null,
+      trainInfo: null,
     };
     this.onMapLoad = this.onMapLoad.bind(this);
   }
@@ -22,7 +22,6 @@ class AllMapContainer extends Component {
     let secondMarkers;
     let firstMarkers;
     const { trainInfo } = this.props;
-    console.log(trainInfo);
     if (this.map) {
       firstMarkers = trainInfo.map((trainInfo) => {
         var d = new Date(0)
@@ -48,23 +47,27 @@ class AllMapContainer extends Component {
         );
       });
 
+      var geoJsonData = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            trainInfo.current_location_coords,
+            trainInfo.next_location_coords
+          ],
+        },
+      }
+
       var paint = { 'fill-color': 'blue' }
       trainInfo.map((trainInfo) => {
-        Helpers.removeGeoJSON(this.map, trainInfo.train_descriptor);
+        Helpers.removeGeoJSON(
+          this.map,
+          trainInfo.train_descriptor);
         Helpers.drawGeoJSON(
           this.map,
           trainInfo.train_descriptor,
-          {
-              type: 'Feature',
-              geometry: {
-                  type: 'LineString',
-                  coordinates: [
-                      trainInfo.current_location_coords,
-                      trainInfo.next_location_coords
-                  ],
-              },
-          },
-          paint, () => {console.log("DONE")});
+          geoJsonData,
+          paint);
         });
     }
 
@@ -74,12 +77,12 @@ class AllMapContainer extends Component {
         width: "100vw",
         'text-align': "left" }}>
         <MapboxMap
-            accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
-            coordinates={{ lat: 51.5074, lng: 0.1278 }}
-            className="map-container"
-            onLoad={this.onMapLoad} >
-            {firstMarkers}
-            {secondMarkers}
+          accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
+          coordinates={{ lat: 51.5074, lng: 0.1278 }}
+          className="map-container"
+          onLoad={this.onMapLoad} >
+          {firstMarkers}
+          {secondMarkers}
         </MapboxMap>
       </div>
     );

@@ -7,9 +7,9 @@ class MapView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        data : null,
-        trainInfo: null,
-        selectedOption: null
+      data : null,
+      trainInfo: null,
+      selectedOption: null
     };
   }
 
@@ -36,7 +36,7 @@ class MapView extends Component {
 
   handleChange = (selectedOption) => {
     this.getTrainInfo(selectedOption);
-    this.setState({selectedOption: selectedOption});
+    this.setState({ selectedOption: selectedOption });
   }
 
   render() {
@@ -44,11 +44,11 @@ class MapView extends Component {
       <div>
         { this.state.data ?
           <Select
-            onChange={this.handleChange}
-            options={this.state.data}
+            onChange={ this.handleChange }
+            options={ this.state.data }
           /> : null }
-        {this.state.trainInfo ?
-          <MapContainer trainInfo={ this.state.trainInfo }/> : null}
+        { this.state.trainInfo ?
+          <MapContainer trainInfo={ this.state.trainInfo }/> : null }
       </div>
       );
   }

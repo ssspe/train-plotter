@@ -8,8 +8,8 @@ class MapContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        data : null,
-        trainInfo: null,
+      data : null,
+      trainInfo: null,
     };
     this.onMapLoad = this.onMapLoad.bind(this);
   }
@@ -28,64 +28,55 @@ class MapContainer extends Component {
       d.setUTCSeconds(trainInfo.arrival_time / 1000)
 
       firstMarkers =
-          <Marker
-            coordinates={{ lng: trainInfo.current_location_coords[0], lat: trainInfo.current_location_coords[1] }}
-            map={this.map}
-            popup={d.toLocaleString("en-UK")}
-            popupOnOver
-            popupOffset={20} />
+        <Marker
+          coordinates={ { lng: trainInfo.current_location_coords[0], lat: trainInfo.current_location_coords[1] } }
+          map={ this.map }
+          popup={ d.toLocaleString("en-UK") }
+          popupOnOver
+          popupOffset={ 20 } />
 
       secondMarkers =
-          <Marker
-            coordinates={{ lng: trainInfo.next_location_coords[0], lat: trainInfo.next_location_coords[1] }}
-            map={this.map}
-            popup="Second"
-            popupOnOver
-            popupOffset={20} />
+        <Marker
+          coordinates={ { lng: trainInfo.next_location_coords[0], lat: trainInfo.next_location_coords[1] } }
+          map={ this.map }
+          popup="Second"
+          popupOnOver
+          popupOffset={ 20 } />
 
-      var geoJsonData = {"data": {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [
-                        trainInfo.current_location_coords,
-                        trainInfo.next_location_coords
-                    ]
-                }
-            }};
+      var geoJsonData = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            trainInfo.current_location_coords,
+            trainInfo.next_location_coords
+          ],
+        },
+      }
 
       var paint = { 'fill-color': 'blue' }
-      Helpers.removeGeoJSON(this.map, trainInfo.train_descriptor);
+      Helpers.removeGeoJSON(
+        this.map,
+        trainInfo.train_descriptor);
       Helpers.drawGeoJSON(
         this.map,
         trainInfo.train_descriptor,
-        {
-            type: 'Feature',
-            geometry: {
-                type: 'LineString',
-                coordinates: [
-                    trainInfo.current_location_coords,
-                    trainInfo.next_location_coords
-                ],
-            },
-        },
-        paint, () => {console.log("DONE")});
-
+        geoJsonData,
+        paint);
     }
 
     return (
-      <div style={{
+      <div style={ {
         height: "100vh",
         width: "100vw",
-        'text-align': "left" }}>
+        'text-align': "left" } }>
         <MapboxMap
-            accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
-            coordinates={{ lat: 51.5074, lng: 0.1278 }}
-            className="map-container"
-            onLoad={this.onMapLoad} >
-            {firstMarkers}
-            {secondMarkers}
+          accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
+          coordinates={ { lat: 51.5074, lng: 0.1278 } }
+          className="map-container"
+          onLoad={ this.onMapLoad } >
+          { firstMarkers }
+          { secondMarkers }
         </MapboxMap>
       </div>
     );

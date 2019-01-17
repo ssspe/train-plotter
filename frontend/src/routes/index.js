@@ -14,9 +14,9 @@ class Router extends Component {
           <Route exact path='/AllMapView' component={AllMapView}/>
           <Route exact path='/MapView' component={MapView}/>
         </Switch>
-      </main> );
-    }
-
+      </main>
+    );
+  }
 }
 
 export default Router
