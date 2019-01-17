@@ -205,7 +205,7 @@ router.get("/trainInfo", (req, res) => {
 
 router.get("/allTrainInfo", (req, res) => {
   getAllTrainInfo(function(data) {
-    return res.json({ success: true, data: data.splice(0, 1) });
+    return res.json({ success: true, data: data.splice(0, 20) });
   });
 });
 
