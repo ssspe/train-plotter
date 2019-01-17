@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import MapboxMap, { Marker, GeoJSONLayer } from 'react-mapbox-wrapper';
+import MapboxMap, { Marker, GeoJSONLayer, Helpers } from 'react-mapbox-wrapper';
 import _ from 'lodash';
 import Icon from '../static/images/map-marker.png';
 
@@ -47,48 +47,24 @@ class AllMapContainer extends Component {
         );
       });
 
+      var paint = { 'fill-color': 'blue' }
       trainInfo.map((trainInfo) => {
-        if (this.map.getLayer("route" + trainInfo.train_descriptor)) {
-          this.map.removeLayer("route" + trainInfo.train_descriptor);
-        }
-
-        if (this.map.getSource("source" + trainInfo.train_descriptor)){
-          this.map.removeSource("source" + trainInfo.train_descriptor);
-        }
-
-        if (!this.map.getSource("source" + trainInfo.train_descriptor)){
-          this.map.addSource("source" + trainInfo.train_descriptor, {
-            "type": "geojson",
-            "data": {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [
-                        trainInfo.current_journey,
-                        trainInfo.second_journey
-                    ]
-                }
-            }
-          });
-        }
-
-        if (!this.map.getLayer("route" + trainInfo.train_descriptor)){
-          this.map.addLayer({
-            "id": "route" + trainInfo.train_descriptor,
-            "type": "line",
-            "source": "source" + trainInfo.train_descriptor,
-            "layout": {
-                "line-join": "round",
-                "line-cap": "round"
-            },
-            "paint": {
-                "line-color": "#888",
-                "line-width": 8
-            }
-          });
-        }
-      });
+        Helpers.removeGeoJSON(this.map, trainInfo.train_descriptor);
+        Helpers.drawGeoJSON(
+          this.map,
+          trainInfo.train_descriptor,
+          {
+              type: 'Feature',
+              geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                      trainInfo.current_journey,
+                      trainInfo.second_journey
+                  ],
+              },
+          },
+          paint, () => {console.log("DONE")});
+        });
     }
 
     return (

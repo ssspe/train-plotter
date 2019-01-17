@@ -54,7 +54,7 @@ class MapContainer extends Component {
                     ]
                 }
             }};
-      console.log(geoJsonData);
+
       var paint = { 'fill-color': 'blue' }
       Helpers.drawGeoJSON(
         this.map,
