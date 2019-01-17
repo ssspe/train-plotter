@@ -12,14 +12,15 @@ class App extends Component {
         data : null,
         trainInfo: null,
         allTrainInfo: null,
-        selectedOption: null
+        selectedOption: null,
+        coordinates: [{ lat: 51.5074, lng: 0.1278 }, { lat: 51.5084, lng: 0.1278 }]
     };
   }
 
   componentDidMount() {
     this.getDataFromDb();
     let interval = setInterval(this.getTrainInfo, 10000);
-    let interval_all = setInterval(this.getAllTrainInfo, 10000);
+    let interval_all = setInterval(this.getAllTrainInfo, 1000);
   }
 
   getDataFromDb = () => {
