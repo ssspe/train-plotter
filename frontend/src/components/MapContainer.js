@@ -29,7 +29,7 @@ class MapContainer extends Component {
 
       firstMarkers =
           <Marker
-            coordinates={{ lng: trainInfo.current_journey[0], lat: trainInfo.current_journey[1] }}
+            coordinates={{ lng: trainInfo.current_location_coords[0], lat: trainInfo.current_location_coords[1] }}
             map={this.map}
             popup={d.toLocaleString("en-UK")}
             popupOnOver
@@ -37,7 +37,7 @@ class MapContainer extends Component {
 
       secondMarkers =
           <Marker
-            coordinates={{ lng: trainInfo.second_journey[0], lat: trainInfo.second_journey[1] }}
+            coordinates={{ lng: trainInfo.next_location_coords[0], lat: trainInfo.next_location_coords[1] }}
             map={this.map}
             popup="Second"
             popupOnOver
@@ -49,13 +49,14 @@ class MapContainer extends Component {
                 "geometry": {
                     "type": "LineString",
                     "coordinates": [
-                        trainInfo.current_journey,
-                        trainInfo.second_journey
+                        trainInfo.current_location_coords,
+                        trainInfo.next_location_coords
                     ]
                 }
             }};
 
       var paint = { 'fill-color': 'blue' }
+      Helpers.removeGeoJSON(this.map, trainInfo.train_descriptor);
       Helpers.drawGeoJSON(
         this.map,
         trainInfo.train_descriptor,
@@ -64,8 +65,8 @@ class MapContainer extends Component {
             geometry: {
                 type: 'LineString',
                 coordinates: [
-                    trainInfo.current_journey,
-                    trainInfo.second_journey
+                    trainInfo.current_location_coords,
+                    trainInfo.next_location_coords
                 ],
             },
         },

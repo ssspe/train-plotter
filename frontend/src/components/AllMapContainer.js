@@ -22,13 +22,14 @@ class AllMapContainer extends Component {
     let secondMarkers;
     let firstMarkers;
     const { trainInfo } = this.props;
+    console.log(trainInfo);
     if (this.map) {
       firstMarkers = trainInfo.map((trainInfo) => {
         var d = new Date(0)
         d.setUTCSeconds(trainInfo.arrival_time / 1000)
         return(
           <Marker
-            coordinates={{ lng: trainInfo.current_journey[0], lat: trainInfo.current_journey[1] }}
+            coordinates={{ lng: trainInfo.current_location_coords[0], lat: trainInfo.current_location_coords[1] }}
             map={this.map}
             popup={d.toLocaleString("en-UK")}
             popupOnOver
@@ -39,7 +40,7 @@ class AllMapContainer extends Component {
       secondMarkers = trainInfo.map((trainInfo) => {
         return(
           <Marker
-            coordinates={{ lng: trainInfo.second_journey[0], lat: trainInfo.second_journey[1] }}
+            coordinates={{ lng: trainInfo.next_location_coords[0], lat: trainInfo.next_location_coords[1] }}
             map={this.map}
             popup="Second"
             popupOnOver
@@ -58,8 +59,8 @@ class AllMapContainer extends Component {
               geometry: {
                   type: 'LineString',
                   coordinates: [
-                      trainInfo.current_journey,
-                      trainInfo.second_journey
+                      trainInfo.current_location_coords,
+                      trainInfo.next_location_coords
                   ],
               },
           },

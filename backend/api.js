@@ -83,8 +83,11 @@ function requestTrainMovement() {
                                     var dbo = db.db("TrainMovement");
                                     var myquery = { train_descriptor: item.body.train_id };
                                     var newvalues = { $set:
-                                      { current_journey: first_coord,
-                                        second_journey:  second_coord,
+                                      { current_location_coords: first_coord,
+                                        next_location_coords:  second_coord,
+                                        current_location: current_journey,
+                                        next_location: second_journey,
+                                        status: item.body.variation_status,
                                         arrival_time: item.body.actual_timestamp } };
                                     dbo.collection("trains").update(myquery, newvalues, {upsert: true}, function(err, res) {
                                       if (err) throw err;
