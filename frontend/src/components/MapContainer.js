@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
-import ReactMapboxGl, { GeoJSONLayer, Layer, Feature, Marker, Popup } from "react-mapbox-gl";
-import Tooltip from '@material-ui/core/Tooltip';
-const dateFormat = require('dateformat');
-const Map = ReactMapboxGl({
-  accessToken: "pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
-})
-
-const linePaint: MapboxGL.LinePaint = {
-  'line-color': 'blue',
-  'line-width': 2
-};
+import MapboxMap, { Marker, GeoJSONLayer } from 'react-mapbox-wrapper';
+import _ from 'lodash';
+import Icon from '../static/images/map-marker.png';
 
 class MapContainer extends Component {
   constructor(props) {
@@ -17,100 +9,96 @@ class MapContainer extends Component {
     this.state = {
         data : null,
         trainInfo: null,
-        first_coord: null,
-        second_coord: null,
-        open: false,
-        arrival_time: null
     };
+    this.onMapLoad = this.onMapLoad.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.trainInfo) {
-      this.getCoordinates(nextProps.trainInfo.current_journey, coord => {
-        this.setState({first_coord: coord});
-      });
-      this.getCoordinates(nextProps.trainInfo.second_journey, coord => {
-        this.setState({second_coord: coord});
-      });
-      var stringDate = new Date(0);
-      stringDate.setUTCSeconds(nextProps.trainInfo.arrival_time / 1000);
-      this.setState({arrival_time: dateFormat(stringDate, "dddd, mmmm dS, h:MM:ss TT")})
-    }
+  onMapLoad(map) {
+    this.map = map;
+    this.forceUpdate();
   }
-
-  getCoordinates = (location, callback) => {
-    const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-    const baseClient = mbxGeocoding({ accessToken: "pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg" });
-    baseClient.forwardGeocode({
-        query: location,
-        countries: ['gb'],
-        limit: 100
-    })
-    .send()
-    .then(function (response)  {
-        if (response && response.body && response.body.features && response.body.features.length) {
-            var feature = response.body.features[0];
-            response.body.features.forEach(feature => {
-              if (feature.place_name.includes("Railway") || feature.place_name.includes("Underground") || feature.place_name.includes("Overground")) {
-                callback(feature.geometry.coordinates);
-              }
-            })
-          }
-    });
-  }
-
-  handleTooltipOpen = () => {
-    console.log(this.state.open);
-    this.setState({ open: !this.state.open });
-  };
 
   render() {
-    return(
-      <Map
-        style="mapbox://styles/mapbox/streets-v9"
-        containerStyle={ {
-          height: "100vh",
-          width: "100vw",
-          'text-align': "left" } }>
-        { this.state.first_coord ?
+    let secondMarkers;
+    let firstMarkers;
+    const { trainInfo } = this.props;
+    console.log(trainInfo)
+    if (this.map) {
+      var d = new Date(0)
+      d.setUTCSeconds(trainInfo.arrival_time / 1000)
+
+      firstMarkers =
           <Marker
-            coordinates={ [this.state.first_coord[0], this.state.first_coord[1]] }
-            onClick={ this.handleTooltipOpen }>
-            <img height="20" width="20" src={ require("../static/images/map-marker.png") } />
-          </Marker> : null }
-        { this.state.second_coord ?
+            coordinates={{ lng: trainInfo.current_journey[0], lat: trainInfo.current_journey[1] }}
+            map={this.map}
+            popup={d.toLocaleString("en-UK")}
+            popupOnOver
+            popupOffset={20} />
+
+      secondMarkers =
           <Marker
-              coordinates={ [this.state.second_coord[0], this.state.second_coord[1]] }
-              onClick={ () => { console.log("Clicked"); } }>
-            <img height="20" width="20" src={ require("../static/images/map-marker.png") } />
-          </Marker> : null }
-        { this.state.open && this.state.arrival_time ?
-          <Popup
-            coordinates={ [this.state.first_coord[0], this.state.first_coord[1]] }
-            offset={{
-              'bottom-left': [12, -38],  'bottom': [0, -38], 'bottom-right': [-12, -38]
-            }}>
-            <h1 className="toolTipText">{this.state.arrival_time}</h1>
-          </Popup> : null }
-        { this.state.first_coord && this.state.second_coord ?
-          <GeoJSONLayer
-            data={ {
-              'type': 'FeatureCollection',
-              'features': [
-                {
-                  'type': 'Feature',
-                  'geometry': {
-                    'type': 'LineString',
-                    'coordinates': [
-                      [this.state.first_coord[0], this.state.first_coord[1]],
-                      [this.state.second_coord[0], this.state.second_coord[1]]
-                    ]
-                  }
-                }
-              ]
-            } }
-            linePaint={linePaint} /> : null }
-      </Map>
+            coordinates={{ lng: trainInfo.second_journey[0], lat: trainInfo.second_journey[1] }}
+            map={this.map}
+            popup="Second"
+            popupOnOver
+            popupOffset={20} />
+
+      if (this.map.getLayer("route" + trainInfo.train_descriptor)) {
+        this.map.removeLayer("route" + trainInfo.train_descriptor);
+      }
+
+      if (this.map.getSource("source" + trainInfo.train_descriptor)){
+        this.map.removeSource("source" + trainInfo.train_descriptor);
+      }
+
+      if (!this.map.getSource("source" + trainInfo.train_descriptor)){
+        this.map.addSource("source" + trainInfo.train_descriptor, {
+          "type": "geojson",
+          "data": {
+              "type": "Feature",
+              "properties": {},
+              "geometry": {
+                  "type": "LineString",
+                  "coordinates": [
+                      trainInfo.current_journey,
+                      trainInfo.second_journey
+                  ]
+              }
+          }
+        });
+      }
+
+      if (!this.map.getLayer("route" + trainInfo.train_descriptor)){
+        this.map.addLayer({
+          "id": "route" + trainInfo.train_descriptor,
+          "type": "line",
+          "source": "source" + trainInfo.train_descriptor,
+          "layout": {
+              "line-join": "round",
+              "line-cap": "round"
+          },
+          "paint": {
+              "line-color": "#888",
+              "line-width": 8
+          }
+        });
+      }
+    }
+    
+    return (
+      <div style={{
+        height: "100vh",
+        width: "100vw",
+        'text-align': "left" }}>
+        <MapboxMap
+            accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
+            coordinates={{ lat: 51.5074, lng: 0.1278 }}
+            className="map-container"
+            onLoad={this.onMapLoad} >
+            {firstMarkers}
+            {secondMarkers}
+        </MapboxMap>
+      </div>
     );
   }
 }
