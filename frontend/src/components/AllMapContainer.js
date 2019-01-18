@@ -26,40 +26,50 @@ class AllMapContainer extends Component {
       firstMarkers = trainInfo.map((trainInfo) => {
         var d = new Date(0)
         d.setUTCSeconds(trainInfo.arrival_time / 1000)
+        const popup = <div>
+                        <span>{d.toLocaleString("en-UK")}</span>
+                        <br />
+                        <span>{trainInfo.status}</span>
+                      </div>
         return(
           <Marker
             coordinates={{ lng: trainInfo.current_location_coords[0], lat: trainInfo.current_location_coords[1] }}
             map={this.map}
-            popup={d.toLocaleString("en-UK")}
+            popup={popup}
             popupOnOver
             popupOffset={20} />
         );
       });
 
       secondMarkers = trainInfo.map((trainInfo) => {
+        const popup = <div>
+                        {trainInfo.planned_event_type === "DESTINATION" ? <div><span>trainInfo.planned_event_type</span><br /></div> : null}
+
+                        <span>{trainInfo.status}</span>
+                      </div>
         return(
           <Marker
             coordinates={{ lng: trainInfo.next_location_coords[0], lat: trainInfo.next_location_coords[1] }}
             map={this.map}
-            popup="Second"
+            popup={popup}
             popupOnOver
             popupOffset={20} />
         );
       });
 
-      var geoJsonData = {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            trainInfo.current_location_coords,
-            trainInfo.next_location_coords
-          ],
-        },
-      }
-
       var paint = { 'fill-color': 'blue' }
       trainInfo.map((trainInfo) => {
+        var geoJsonData = {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              trainInfo.current_location_coords,
+              trainInfo.next_location_coords
+            ],
+          },
+        }
+
         Helpers.removeGeoJSON(
           this.map,
           trainInfo.train_descriptor);

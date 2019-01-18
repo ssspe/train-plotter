@@ -89,7 +89,8 @@ function requestTrainMovement() {
                               current_location: current_journey,
                               next_location: second_journey,
                               status: item.body.variation_status,
-                              arrival_time: item.body.actual_timestamp
+                              arrival_time: item.body.actual_timestamp,
+                              planned_event_type: item.body.planned_event_type
                             }
                           };
                           dbo.collection("trains").update(myquery, newvalues, {upsert: true}, function(err, res) {
