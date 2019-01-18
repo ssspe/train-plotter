@@ -3,6 +3,7 @@ import MapboxMap, { Marker, GeoJSONLayer, Helpers } from 'react-mapbox-wrapper';
 // import { drawGeoJSON } from 'react-mapbox-wrapper/Helpers';
 import _ from 'lodash';
 import Icon from '../static/images/map-marker.png';
+import Constants from "../constants.js";
 
 class MapContainer extends Component {
   constructor(props) {
@@ -71,7 +72,7 @@ class MapContainer extends Component {
         width: "100vw",
         'text-align': "left" } }>
         <MapboxMap
-          accessToken="pk.eyJ1Ijoic3NzcGUiLCJhIjoiY2pxcDNkZWluMDFoazN4dGd6bTY3bnA1ayJ9.9vYYYBBh2scR2shTbCUHFg"
+          accessToken={ Constants.MAPBOX_API_TOKEN }
           coordinates={ { lat: 51.5074, lng: 0.1278 } }
           className="map-container"
           onLoad={ this.onMapLoad } >

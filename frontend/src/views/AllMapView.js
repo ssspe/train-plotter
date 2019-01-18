@@ -11,6 +11,7 @@ class AllMapView extends Component {
   }
 
   componentDidMount() {
+    this.getAllTrainInfo();
     let interval_all = setInterval(this.getAllTrainInfo, 5000);
   }
 
